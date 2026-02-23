@@ -1,7 +1,6 @@
 <Solution>
   <Configurations>
     <Platform Name="x64" />
-    <Platform Name="x86" />
   </Configurations>
-  <Project Path="EngineD3D12.vcxproj" />
+  <Project Path="EngineD3D12.vcxproj" Id="40cd71ef-c36e-4cfe-9dd2-d9d7385e80c9" />
 </Solution>
