@@ -80,11 +80,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Debug\DebugLayer.cpp" />
+    <ClCompile Include="DXDebug\DebugLayer.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Debug\DebugLayer.h" />
+    <ClInclude Include="DXDebug\DebugLayer.h" />
     <ClInclude Include="Support\ComPointer.h" />
     <ClInclude Include="Support\CustomWin.h" />
   </ItemGroup>

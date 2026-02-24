@@ -2,11 +2,16 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Debug\DebugLayer.cpp" />
+    <ClCompile Include="DXDebug\DebugLayer.cpp">
+      <Filter>DXDebug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Support">
       <UniqueIdentifier>{1bfceea3-5c3c-483a-a91c-23922166c5e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DXDebug">
+      <UniqueIdentifier>{c2cc8e83-5ec6-4eba-97db-25912abca166}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -16,6 +21,8 @@
     <ClInclude Include="Support\ComPointer.h">
       <Filter>Support</Filter>
     </ClInclude>
-    <ClInclude Include="Debug\DebugLayer.h" />
+    <ClInclude Include="DXDebug\DebugLayer.h">
+      <Filter>DXDebug</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
