@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Debug\DebugLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Support">
@@ -15,5 +16,6 @@
     <ClInclude Include="Support\ComPointer.h">
       <Filter>Support</Filter>
     </ClInclude>
+    <ClInclude Include="Debug\DebugLayer.h" />
   </ItemGroup>
 </Project>
