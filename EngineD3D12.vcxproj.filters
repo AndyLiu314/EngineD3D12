@@ -2,9 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="DXDebug\DebugLayer.cpp">
+    <ClCompile Include="DXDebug\DXDebugLayer.cpp">
       <Filter>DXDebug</Filter>
     </ClCompile>
+    <ClCompile Include="D3D\DXContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Support">
@@ -21,8 +22,9 @@
     <ClInclude Include="Support\ComPointer.h">
       <Filter>Support</Filter>
     </ClInclude>
-    <ClInclude Include="DXDebug\DebugLayer.h">
+    <ClInclude Include="DXDebug\DXDebugLayer.h">
       <Filter>DXDebug</Filter>
     </ClInclude>
+    <ClInclude Include="D3D\DXContext.h" />
   </ItemGroup>
 </Project>
