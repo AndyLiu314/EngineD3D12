@@ -5,7 +5,9 @@
     <ClCompile Include="DXDebug\DXDebugLayer.cpp">
       <Filter>DXDebug</Filter>
     </ClCompile>
-    <ClCompile Include="D3D\DXContext.cpp" />
+    <ClCompile Include="D3D\DXContext.cpp">
+      <Filter>D3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Support">
@@ -13,6 +15,9 @@
     </Filter>
     <Filter Include="DXDebug">
       <UniqueIdentifier>{c2cc8e83-5ec6-4eba-97db-25912abca166}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3D">
+      <UniqueIdentifier>{404d89dc-cfcc-4daa-b02a-9c69eb62e284}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +30,8 @@
     <ClInclude Include="DXDebug\DXDebugLayer.h">
       <Filter>DXDebug</Filter>
     </ClInclude>
-    <ClInclude Include="D3D\DXContext.h" />
+    <ClInclude Include="D3D\DXContext.h">
+      <Filter>D3D</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
