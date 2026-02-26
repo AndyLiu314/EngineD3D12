@@ -83,6 +83,8 @@
     <ClCompile Include="D3D\DXContext.cpp" />
     <ClCompile Include="DXDebug\DXDebugLayer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Support\Window.cpp" />
+    <ClCompile Include="Support\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3D\DXContext.h" />

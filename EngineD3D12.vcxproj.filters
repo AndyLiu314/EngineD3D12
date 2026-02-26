@@ -8,6 +8,12 @@
     <ClCompile Include="D3D\DXContext.cpp">
       <Filter>D3D</Filter>
     </ClCompile>
+    <ClCompile Include="Support\Window.cpp">
+      <Filter>Support</Filter>
+    </ClCompile>
+    <ClCompile Include="Support\Window.h">
+      <Filter>Support</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Support">
