@@ -12,6 +12,8 @@ int main()
 
 	if (DXContext::Get().Init() && DXWindow::Get().Init())
 	{
+		DXWindow::Get().SetFullscreen(true);
+
 		while (!DXWindow::Get().ShouldClose())
 		{
 			// Process Window Messages
