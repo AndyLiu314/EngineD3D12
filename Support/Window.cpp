@@ -44,7 +44,41 @@ bool DXWindow::Init()
         nullptr,
         wcex.hInstance,
         nullptr);
-    if (!m_window)
+    if (m_window == nullptr)
+    {
+        return false;
+    }
+
+    // Describe Swap Chain
+    DXGI_SWAP_CHAIN_DESC1 swapDesc{};
+    swapDesc.Width = 1920;
+    swapDesc.Height = 1080;
+    swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapDesc.Stereo = false;
+    swapDesc.SampleDesc.Count = 1;
+    swapDesc.SampleDesc.Quality = 0;
+    swapDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapDesc.BufferCount = GetFrameCount();
+    swapDesc.Scaling = DXGI_SCALING_STRETCH;
+    swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+    swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapFullDesc{};
+    swapFullDesc.Windowed = true;
+
+    // Swap Chain
+    auto& factory = DXContext::Get().GetFactory();
+    ComPointer<IDXGISwapChain1> sc1;
+    factory->CreateSwapChainForHwnd(
+        DXContext::Get().GetCommandQueue(),
+        m_window,
+        &swapDesc,
+        &swapFullDesc,
+        nullptr,
+        &sc1
+    );
+    if (!sc1.QueryInterface(m_swapChain))
     {
         return false;
     }
@@ -62,8 +96,15 @@ void DXWindow::Update()
     }
 }
 
+void DXWindow::Present()
+{
+    m_swapChain->Present(1, 0);
+}
+
 void DXWindow::Shutdown()
 {
+    m_swapChain.Release();
+
     if (m_window)
     {
         DestroyWindow(m_window);

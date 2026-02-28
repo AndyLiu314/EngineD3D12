@@ -15,11 +15,15 @@ int main()
 		while (!DXWindow::Get().ShouldClose())
 		{
 			DXWindow::Get().Update();
+
 			auto* cmdList = DXContext::Get().InitCommandList();
-
-
 			DXContext::Get().ExecuteCommandList();
+
+			DXWindow::Get().Present();
 		}
+
+		// Flushing
+		DXContext::Get().Flush(DXWindow::GetFrameCount());
 
 		DXWindow::Get().Shutdown();
 		DXContext::Get().Shutdown();
