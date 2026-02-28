@@ -83,6 +83,13 @@ bool DXWindow::Init()
         return false;
     }
 
+    // Get Buffers
+    if (!GetBuffers())
+    {
+        return false;
+    }
+
+
     return true;
 }
 
@@ -103,6 +110,8 @@ void DXWindow::Present()
 
 void DXWindow::Shutdown()
 {
+    ReleaseBuffers();
+
     m_swapChain.Release();
 
     if (m_window)
@@ -118,6 +127,8 @@ void DXWindow::Shutdown()
 
 void DXWindow::Resize()
 {
+    ReleaseBuffers();
+
     RECT clientRect;
     if (GetClientRect(m_window, &clientRect))
     {
@@ -133,6 +144,8 @@ void DXWindow::Resize()
         );
         m_shouldResize = false;
     }
+
+    GetBuffers();
 }
 
 void DXWindow::SetFullscreen(bool enabled)
@@ -174,6 +187,27 @@ void DXWindow::SetFullscreen(bool enabled)
     }
 
     m_isFullscreen = enabled;
+}
+
+bool DXWindow::GetBuffers()
+{
+    for (size_t i = 0; i < FrameCount; ++i)
+    {
+        if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_buffers[i]))))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void DXWindow::ReleaseBuffers()
+{
+    for (size_t i = 0; i < FrameCount; ++i)
+    {
+        m_buffers[i].Release();
+    }
 }
 
 LRESULT DXWindow::OnWindowMessage(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
