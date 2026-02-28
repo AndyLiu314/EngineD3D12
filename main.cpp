@@ -14,11 +14,23 @@ int main()
 	{
 		while (!DXWindow::Get().ShouldClose())
 		{
+			// Process Window Messages
 			DXWindow::Get().Update();
 
-			auto* cmdList = DXContext::Get().InitCommandList();
-			DXContext::Get().ExecuteCommandList();
+			// Handle Resizing
+			if (DXWindow::Get().ShouldResize())
+			{
+				DXContext::Get().Flush(DXWindow::GetFrameCount());
+				DXWindow::Get().Resize();
+			}
 
+			// Begin Drawing
+			auto* cmdList = DXContext::Get().InitCommandList();
+
+			// TODO: Draw stuff
+
+			// Finish Drawing and Present
+			DXContext::Get().ExecuteCommandList();
 			DXWindow::Get().Present();
 		}
 

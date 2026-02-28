@@ -67,7 +67,7 @@ bool DXWindow::Init()
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapFullDesc{};
     swapFullDesc.Windowed = true;
 
-    // Swap Chain
+    // Create Swap Chain
     auto& factory = DXContext::Get().GetFactory();
     ComPointer<IDXGISwapChain1> sc1;
     factory->CreateSwapChainForHwnd(
@@ -116,10 +116,36 @@ void DXWindow::Shutdown()
     }
 }
 
+void DXWindow::Resize()
+{
+    RECT clientRect;
+    if (GetClientRect(m_window, &clientRect))
+    {
+        m_width = clientRect.right - clientRect.left; 
+        m_height = clientRect.bottom - clientRect.top;
+
+        m_swapChain->ResizeBuffers(
+            GetFrameCount(),
+            m_width,
+            m_height,
+            DXGI_FORMAT_UNKNOWN,
+            DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
+        );
+        m_shouldResize = false;
+    }
+}
+
 LRESULT DXWindow::OnWindowMessage(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
+    case WM_SIZE:
+        if (lParam && (HIWORD(lParam) != Get().m_height || LOWORD(lParam) != Get().m_width))
+        {
+            Get().m_shouldResize = true;
+        }
+        break;
+
     case WM_CLOSE:
         Get().m_shouldClose = true;
         return 0;
