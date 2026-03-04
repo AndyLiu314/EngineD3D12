@@ -189,6 +189,34 @@ void DXWindow::SetFullscreen(bool enabled)
     m_isFullscreen = enabled;
 }
 
+void DXWindow::BeginFrame(ID3D12GraphicsCommandList10* cmdList)
+{
+    m_currentBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+    D3D12_RESOURCE_BARRIER barr;
+    barr.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barr.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barr.Transition.pResource = m_buffers[m_currentBufferIndex];
+    barr.Transition.Subresource = 0;
+    barr.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+    barr.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    cmdList->ResourceBarrier(1, &barr);
+}
+
+void DXWindow::EndFrame(ID3D12GraphicsCommandList10* cmdList)
+{
+    D3D12_RESOURCE_BARRIER barr;
+    barr.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barr.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barr.Transition.pResource = m_buffers[m_currentBufferIndex];
+    barr.Transition.Subresource = 0;
+    barr.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barr.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+    cmdList->ResourceBarrier(1, &barr);
+}
+
 bool DXWindow::GetBuffers()
 {
     for (size_t i = 0; i < FrameCount; ++i)

@@ -9,7 +9,7 @@ public:
 	void Shutdown();
 
 	void SignalAndWait();
-	ID3D12GraphicsCommandList9* InitCommandList();
+	ID3D12GraphicsCommandList10* InitCommandList();
 	void ExecuteCommandList();
 
 	inline void Flush(size_t count)
@@ -41,7 +41,7 @@ private:
 	ComPointer<ID3D12CommandQueue> m_cmdQueue;
 
 	ComPointer<ID3D12CommandAllocator> m_cmdAllocator;
-	ComPointer<ID3D12GraphicsCommandList9> m_cmdList;
+	ComPointer<ID3D12GraphicsCommandList10> m_cmdList;
 
 	ComPointer<ID3D12Fence1> m_fence;
 	UINT64 m_fenceValue = 0;
