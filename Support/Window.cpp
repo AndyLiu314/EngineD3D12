@@ -83,6 +83,26 @@ bool DXWindow::Init()
         return false;
     }
 
+    // Create RTV Heap
+    D3D12_DESCRIPTOR_HEAP_DESC descHeapDesc{};
+    descHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    descHeapDesc.NumDescriptors = FrameCount;
+    descHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    descHeapDesc.NodeMask = 0;
+    if (FAILED(DXContext::Get().GetDevice()->CreateDescriptorHeap(&descHeapDesc, IID_PPV_ARGS(&m_rtvDescHeap))))
+    {
+        return false;
+    }
+
+    // Create Handles to View
+    auto firstHandle = m_rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
+    auto handleIncrement = DXContext::Get().GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    for (size_t i = 0; i < FrameCount; ++i)
+    {
+        m_rtvHandles[i] = firstHandle;
+        m_rtvHandles[i].ptr += handleIncrement * i;
+    }
+
     // Get Buffers
     if (!GetBuffers())
     {
@@ -111,6 +131,8 @@ void DXWindow::Present()
 void DXWindow::Shutdown()
 {
     ReleaseBuffers();
+
+    m_rtvDescHeap.Release();
 
     m_swapChain.Release();
 
@@ -202,6 +224,10 @@ void DXWindow::BeginFrame(ID3D12GraphicsCommandList10* cmdList)
     barr.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
     cmdList->ResourceBarrier(1, &barr);
+
+    float clearColour[] = { .8f, 1.f, .8f, 1.f };
+    cmdList->ClearRenderTargetView(m_rtvHandles[m_currentBufferIndex], clearColour, 0, nullptr);
+    cmdList->OMSetRenderTargets(1, &m_rtvHandles[m_currentBufferIndex], false, nullptr);
 }
 
 void DXWindow::EndFrame(ID3D12GraphicsCommandList10* cmdList)
@@ -225,6 +251,17 @@ bool DXWindow::GetBuffers()
         {
             return false;
         }
+
+        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+        rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+        rtvDesc.Texture2D.MipSlice = 0;
+        rtvDesc.Texture2D.PlaneSlice = 0;
+        DXContext::Get().GetDevice()->CreateRenderTargetView(
+            m_buffers[i],
+            &rtvDesc,
+            m_rtvHandles[i]
+        );
     }
 
     return true;
