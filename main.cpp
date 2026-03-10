@@ -94,19 +94,59 @@ int main()
 		DXContext::Get().ExecuteCommandList();
 
 		// Shaders
+		Shader rootSignatureShader("RootSignature.cso");
 		Shader vertexShader("VertexShader.cso");
 		Shader pixelShader("PixelShader.cso");
 
-		// Pipeline State
+		// Create Root Signature
+		ComPointer<ID3D12RootSignature> rootSignature;
+		DXContext::Get().GetDevice()->CreateRootSignature(
+			0,
+			rootSignatureShader.GetBuffer(),
+			rootSignatureShader.GetSize(),
+			IID_PPV_ARGS(&rootSignature)
+		);
+
+		// === Pipeline State ===
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC gfxPSODesc{};
+		gfxPSODesc.pRootSignature = rootSignature;
+
 		gfxPSODesc.InputLayout.NumElements = _countof(vertexLayout);
 		gfxPSODesc.InputLayout.pInputElementDescs = vertexLayout;
 		gfxPSODesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+		
 		gfxPSODesc.VS.BytecodeLength = vertexShader.GetSize();
 		gfxPSODesc.VS.pShaderBytecode = vertexShader.GetBuffer();
-		// TODO: Rasterizer
 		gfxPSODesc.PS.BytecodeLength = pixelShader.GetSize();
 		gfxPSODesc.PS.pShaderBytecode = pixelShader.GetBuffer();
+		gfxPSODesc.DS.BytecodeLength = 0;
+		gfxPSODesc.DS.pShaderBytecode = nullptr;
+		gfxPSODesc.HS.BytecodeLength = 0; 
+		gfxPSODesc.HS.pShaderBytecode = nullptr;
+		gfxPSODesc.GS.BytecodeLength = 0;
+		gfxPSODesc.GS.pShaderBytecode = nullptr;
+
+		gfxPSODesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+		gfxPSODesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+		gfxPSODesc.RasterizerState.FrontCounterClockwise = FALSE;
+		gfxPSODesc.RasterizerState.DepthBias = 0;
+		gfxPSODesc.RasterizerState.DepthBiasClamp = .0f;
+		gfxPSODesc.RasterizerState.SlopeScaledDepthBias = .0f;
+		gfxPSODesc.RasterizerState.DepthClipEnable = FALSE;
+		gfxPSODesc.RasterizerState.MultisampleEnable = FALSE;
+		gfxPSODesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		gfxPSODesc.RasterizerState.ForcedSampleCount = 0;
+
+		gfxPSODesc.StreamOutput.NumEntries = 0;
+		gfxPSODesc.StreamOutput.NumStrides = 0;
+		gfxPSODesc.StreamOutput.pBufferStrides = nullptr;
+		gfxPSODesc.StreamOutput.pSODeclaration = nullptr;
+		gfxPSODesc.StreamOutput.RasterizedStream = 0;
+
+		gfxPSODesc.NodeMask = 0;
+		gfxPSODesc.CachedPSO.CachedBlobSizeInBytes = 0;
+		gfxPSODesc.CachedPSO.pCachedBlob = nullptr;
+		gfxPSODesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 		// TODO: Output Merger
 
 		// Vertex Buffer View
