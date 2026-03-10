@@ -83,6 +83,7 @@
     <ClCompile Include="D3D\DXContext.cpp" />
     <ClCompile Include="DXDebug\DXDebugLayer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Support\Shader.cpp" />
     <ClCompile Include="Support\Window.cpp" />
     <ClCompile Include="Support\Window.h" />
   </ItemGroup>
@@ -91,6 +92,21 @@
     <ClInclude Include="DXDebug\DXDebugLayer.h" />
     <ClInclude Include="Support\ComPointer.h" />
     <ClInclude Include="Support\CustomWin.h" />
+    <ClInclude Include="Support\Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
