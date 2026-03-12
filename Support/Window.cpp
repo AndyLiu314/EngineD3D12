@@ -225,7 +225,7 @@ void DXWindow::BeginFrame(ID3D12GraphicsCommandList10* cmdList)
 
     cmdList->ResourceBarrier(1, &barr);
 
-    float clearColour[] = { .8f, 1.f, .8f, 1.f };
+    float clearColour[] = { .2f, .4f, .2f, 1.f };
     cmdList->ClearRenderTargetView(m_rtvHandles[m_currentBufferIndex], clearColour, 0, nullptr);
     cmdList->OMSetRenderTargets(1, &m_rtvHandles[m_currentBufferIndex], false, nullptr);
 }

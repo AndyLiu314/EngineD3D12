@@ -7,6 +7,23 @@
 #include "DXDebug/DXDebugLayer.h"
 #include "D3D/DXContext.h"
 
+void pukeColour(float* colour)
+{
+	static int pukeState = 0;
+	colour[pukeState] += 0.001f;
+	if (colour[pukeState] > 1.0f)
+	{
+		pukeState++;
+		if (pukeState == 3)
+		{
+			colour[0] = 0.0f;
+			colour[1] = 0.0f;
+			colour[2] = 0.0f;
+			pukeState = 0;
+		}
+	}
+}
+
 int main()
 {
 	DXDebugLayer::Get().Init(); 
@@ -150,14 +167,14 @@ int main()
 
 		gfxPSODesc.BlendState.AlphaToCoverageEnable = FALSE;
 		gfxPSODesc.BlendState.IndependentBlendEnable = FALSE;
-		gfxPSODesc.BlendState.RenderTarget[0].BlendEnable = FALSE;
-		gfxPSODesc.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
-		gfxPSODesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+		gfxPSODesc.BlendState.RenderTarget[0].BlendEnable = TRUE;
+		gfxPSODesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
 		gfxPSODesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
 		gfxPSODesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		gfxPSODesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ZERO;
 		gfxPSODesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 		gfxPSODesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		gfxPSODesc.BlendState.RenderTarget[0].LogicOpEnable = FALSE;
 		gfxPSODesc.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
 		gfxPSODesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
@@ -221,6 +238,26 @@ int main()
 			// == IA ==
 			cmdList->IASetVertexBuffers(0, 1, &vertexBufferView);
 			cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			// == RS ==
+			D3D12_VIEWPORT viewport{};
+			viewport.TopLeftX = viewport.TopLeftY = 0;
+			viewport.Width = DXWindow::Get().GetWidth();
+			viewport.Height = DXWindow::Get().GetHeight();
+			viewport.MinDepth = 1.f;
+			viewport.MaxDepth = 0.f;
+			cmdList->RSSetViewports(1, &viewport);
+
+			RECT scissorRect;
+			scissorRect.left = scissorRect.top = 0;
+			scissorRect.right = DXWindow::Get().GetWidth();
+			scissorRect.bottom = DXWindow::Get().GetHeight();
+			cmdList->RSSetScissorRects(1, &scissorRect);
+
+			// == ROOT ARGS ==
+			static float colour[] = { 0.0f, 0.0f, 0.0f };
+			pukeColour(colour);
+			cmdList->SetGraphicsRoot32BitConstants(0, 3, colour, 0);
 
 			// Draw
 			cmdList->DrawInstanced(_countof(vertices), 1, 0, 0);
