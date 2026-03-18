@@ -83,6 +83,7 @@
     <ClCompile Include="D3D\DXContext.cpp" />
     <ClCompile Include="DXDebug\DXDebugLayer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Support\ImageLoader.cpp" />
     <ClCompile Include="Support\Shader.cpp" />
     <ClCompile Include="Support\Window.cpp" />
     <ClCompile Include="Support\Window.h" />
@@ -92,6 +93,7 @@
     <ClInclude Include="DXDebug\DXDebugLayer.h" />
     <ClInclude Include="Support\ComPointer.h" />
     <ClInclude Include="Support\CustomWin.h" />
+    <ClInclude Include="Support\ImageLoader.h" />
     <ClInclude Include="Support\Shader.h" />
   </ItemGroup>
   <ItemGroup>
