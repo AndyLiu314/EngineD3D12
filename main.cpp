@@ -64,26 +64,45 @@ int main()
 			{ "Position", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 		};
 
+		// Texture Data
+		ImageLoader::ImageData textureData;
+		ImageLoader::LoadImageFromDisk("./auge_512_512_BGRA_32BPP.png", textureData);
+		uint32_t textureStride = textureData.width * ((textureData.bpp + 7) / 8);
+		uint32_t textureSize = textureData.height * textureStride;
+
 		// Desc for Upload and Vertex Buffer
-		D3D12_RESOURCE_DESC resourceDesc{};
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-		resourceDesc.Width = 1024;
-		resourceDesc.Height = 1;
-		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.MipLevels = 1;
-		resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-		resourceDesc.SampleDesc.Count = 1;
-		resourceDesc.SampleDesc.Quality = 0;
-		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		D3D12_RESOURCE_DESC resourceDescVertex{};
+		resourceDescVertex.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDescVertex.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+		resourceDescVertex.Width = 1024;
+		resourceDescVertex.Height = 1;
+		resourceDescVertex.DepthOrArraySize = 1;
+		resourceDescVertex.MipLevels = 1;
+		resourceDescVertex.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDescVertex.SampleDesc.Count = 1;
+		resourceDescVertex.SampleDesc.Quality = 0;
+		resourceDescVertex.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		resourceDescVertex.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		D3D12_RESOURCE_DESC resourceDescUpload{};
+		resourceDescUpload.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		resourceDescUpload.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+		resourceDescUpload.Width = textureSize + 1024;
+		resourceDescUpload.Height = 1;
+		resourceDescUpload.DepthOrArraySize = 1;
+		resourceDescUpload.MipLevels = 1;
+		resourceDescUpload.Format = DXGI_FORMAT_UNKNOWN;
+		resourceDescUpload.SampleDesc.Count = 1;
+		resourceDescUpload.SampleDesc.Quality = 0;
+		resourceDescUpload.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		resourceDescUpload.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 		// Creating Vertex and Upload Buffers
 		ComPointer<ID3D12Resource2> uploadBuffer, vertexBuffer;
 		DXContext::Get().GetDevice()->CreateCommittedResource(
 			&heapPropUpload,
 			D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
+			&resourceDescUpload,
 			D3D12_RESOURCE_STATE_COMMON,
 			nullptr,
 			IID_PPV_ARGS(&uploadBuffer)
@@ -91,28 +110,75 @@ int main()
 		DXContext::Get().GetDevice()->CreateCommittedResource(
 			&heapPropDefault,
 			D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
+			&resourceDescVertex,
 			D3D12_RESOURCE_STATE_COMMON,
 			nullptr,
 			IID_PPV_ARGS(&vertexBuffer)
 		);
 
+		// == Texture ==
+		D3D12_RESOURCE_DESC resourceDescTexture{};
+		resourceDescTexture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		resourceDescTexture.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+		resourceDescTexture.Width = textureData.width;
+		resourceDescTexture.Height = textureData.height;
+		resourceDescTexture.DepthOrArraySize = 1;
+		resourceDescTexture.MipLevels = 1;
+		resourceDescTexture.Format = textureData.giPixelFormat;
+		resourceDescTexture.SampleDesc.Count = 1;
+		resourceDescTexture.SampleDesc.Quality = 0;
+		resourceDescTexture.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		resourceDescTexture.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		ComPointer<ID3D12Resource2> texture;
+		DXContext::Get().GetDevice()->CreateCommittedResource(
+			&heapPropDefault,
+			D3D12_HEAP_FLAG_NONE,
+			&resourceDescTexture,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(&texture)
+		);
+
 		// Copy void* -> CPU Resource, synchronous
-		void* uploadBufferAddress;
+		char* uploadBufferAddress;
 		D3D12_RANGE uploadRange;
 		uploadRange.Begin = 0;
-		uploadRange.End = 1023;
-		uploadBuffer->Map(0, &uploadRange, &uploadBufferAddress);
-		memcpy(uploadBufferAddress, vertices, sizeof(vertices));
+		uploadRange.End = 1024 + textureSize;
+		uploadBuffer->Map(0, &uploadRange, (void**)&uploadBufferAddress);
+		memcpy(&uploadBufferAddress[0], textureData.data.data(), textureSize);
+		memcpy(&uploadBufferAddress[textureSize], vertices, sizeof(vertices));
 		uploadBuffer->Unmap(0, &uploadRange);
-
-		// == Texture ==
-		ImageLoader::ImageData textureData;
-		ImageLoader::LoadImageFromDisk("./auge_512_512_BGRA_32BPP.png", textureData);
 
 		// Copy CPU Resource -> GPU Resource, asynchronous
 		auto* cmdList = DXContext::Get().InitCommandList();
-		cmdList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, 0, 1024);
+		cmdList->CopyBufferRegion(vertexBuffer, 0, uploadBuffer, textureSize, 1024);
+		D3D12_BOX textureSizeAsBox;
+		textureSizeAsBox.left = textureSizeAsBox.top = textureSizeAsBox.front = 0;
+		textureSizeAsBox.right = textureData.width;
+		textureSizeAsBox.bottom = textureData.height;
+		textureSizeAsBox.back = 1;
+		D3D12_TEXTURE_COPY_LOCATION texCopySrc, texCopyDest;
+		texCopySrc.pResource = uploadBuffer;
+		texCopySrc.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+		texCopySrc.PlacedFootprint.Offset = 0;
+		texCopySrc.PlacedFootprint.Footprint.Width = textureData.width;
+		texCopySrc.PlacedFootprint.Footprint.Height = textureData.height;
+		texCopySrc.PlacedFootprint.Footprint.Depth = 1;
+		texCopySrc.PlacedFootprint.Footprint.RowPitch = textureStride;
+		texCopySrc.PlacedFootprint.Footprint.Format = textureData.giPixelFormat;
+		texCopyDest.pResource = texture;
+		texCopyDest.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		texCopyDest.SubresourceIndex = 0;
+
+		cmdList->CopyTextureRegion(
+			&texCopyDest,
+			0,
+			0,
+			0,
+			&texCopySrc,
+			&textureSizeAsBox
+		);
 		DXContext::Get().ExecuteCommandList();
 
 		// Shaders
