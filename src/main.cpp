@@ -66,7 +66,7 @@ int main()
 
 		// Texture Data
 		ImageLoader::ImageData textureData;
-		ImageLoader::LoadImageFromDisk("./auge_512_512_BGRA_32BPP.png", textureData);
+		ImageLoader::LoadImageFromDisk("./resources/textures/auge_512_512_BGRA_32BPP.png", textureData);
 		uint32_t textureStride = textureData.width * ((textureData.bpp + 7) / 8);
 		uint32_t textureSize = textureData.height * textureStride;
 
